@@ -22,14 +22,14 @@ on:
       - main
     paths:
       - "boletojuros/**"
-      - "Dockerfile"
+      - "boletojuros/Dockerfile"
       - ".github/workflows/build-and-publish-image.yaml"
   pull_request:
     branches:
       - main
     paths:
       - "boletojuros/**"
-      - "Dockerfile"
+      - "boletojuros/Dockerfile"
       - ".github/workflows/build-and-publish-image.yaml"
 
 env:
@@ -53,6 +53,11 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: temurin
           cache: maven
+          cache-dependency-path: boletojuros/pom.xml
+
+      - name: Make Maven wrapper executable
+        working-directory: boletojuros
+        run: chmod +x mvnw
 
       - name: Run tests
         working-directory: boletojuros
@@ -106,8 +111,8 @@ jobs:
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./boletojuros
+          file: ./boletojuros/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
