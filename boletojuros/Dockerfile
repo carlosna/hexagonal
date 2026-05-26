@@ -2,19 +2,17 @@
 # Dockerfile - boletojuros application (Spring Boot / Java 21)
 # =============================================================================
 
-FROM eclipse-temurin:21-jdk AS build
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 
 WORKDIR /workspace
 
-COPY mvnw mvnw
-COPY .mvn .mvn
 COPY pom.xml pom.xml
 
-RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
+RUN mvn dependency:go-offline -B
 
 COPY src src
 
-RUN ./mvnw package -DskipTests -B && \
+RUN mvn package -DskipTests -B && \
     cp target/*.jar target/app.jar
 
 FROM eclipse-temurin:21-jre AS runtime
