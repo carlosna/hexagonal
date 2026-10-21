@@ -21,19 +21,26 @@ LABEL maintainer="Carlos Nascimento <carlosna>"
 LABEL description="boletojuros application"
 LABEL org.opencontainers.image.source="https://github.com/carlosna/hexagonal"
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/* && \
-    groupadd --system appuser && \
-    useradd --system --gid appuser --home-dir /app --shell /usr/sbin/nologin appuser
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --gid 10001 appuser \
+    && useradd \
+        --uid 10001 \
+        --gid 10001 \
+        --home-dir /app \
+        --no-create-home \
+        --shell /usr/sbin/nologin \
+        appuser \
+    && install -d -o 10001 -g 10001 /app
 
 WORKDIR /app
 
-COPY --from=build --chown=appuser:appuser /workspace/target/app.jar app.jar
+COPY --from=build --chown=10001:10001 /workspace/target/app.jar app.jar
 
 EXPOSE 8080
 
-USER appuser
+USER 10001:10001
 
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom"
 
